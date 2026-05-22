@@ -35,9 +35,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
-
-labels_dict = {0: 'A', 1: 'B', 2: 'L'}
-
+labels_dict = {0: 'A', 1: 'B', 2: 'L', 3: 'C', 4: 'D', 5: 'E', 6: 'F'}
 # ── State for word building ────────────────────────────────────────
 sentence = ""                   # accumulated text
 last_character = None           # character detected in previous frame
