@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignSpeak — Real-Time Hand Sign to Text &amp; Speech</title>
+  <meta name="description" content="A beautiful web-based dashboard for real-time hand sign language recognition. Detects hand gestures via webcam, builds words, and speaks them aloud." />
+  <meta name="theme-color" content="#06060f" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ─── Top Navigation ──────────────────────────────────────────── -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar__brand">
+      <span class="navbar__icon" aria-hidden="true">🤟</span>
+      <span class="navbar__title">SignSpeak</span>
+    </div>
+    <div class="navbar__status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Idle</span>
+    </div>
+  </nav>
+
+  <!-- ─── Toast Container ─────────────────────────────────────────── -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- ─── Main Dashboard ──────────────────────────────────────────── -->
+  <main class="dashboard">
+
+    <!-- ── Left: Camera Feed ────────────────────────────────────── -->
+    <section class="card camera-panel" aria-label="Camera feed">
+      <div class="card__header">
+        <h1 class="card__title">Live Camera</h1>
+        <span class="card__badge" id="cameraResolution">—</span>
+      </div>
+
+      <div class="camera-container" id="cameraContainer">
+        <!-- Placeholder shown before camera starts -->
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <span class="camera-placeholder__icon" aria-hidden="true">📷</span>
+          <p class="camera-placeholder__text">Start the camera to begin<br/>recognizing hand signs</p>
+          <button class="btn-start" id="btnStart" type="button">
+            <span class="spinner"></span>
+            <span class="btn-start__text">Start Camera</span>
+          </button>
+        </div>
+
+        <!-- Video + Canvas overlay -->
+        <video id="webcamVideo" autoplay playsinline muted></video>
+        <canvas id="overlayCanvas"></canvas>
+      </div>
+
+      <div class="camera-bar">
+        <span>MediaPipe HandLandmarker + ONNX Runtime</span>
+        <span class="camera-bar__fps" id="fpsCounter">0 FPS</span>
+      </div>
+    </section>
+
+    <!-- ── Right: Side Panel ────────────────────────────────────── -->
+    <aside class="side-panel">
+
+      <!-- Detection display -->
+      <section class="card" aria-label="Detected sign">
+        <div class="card__header">
+          <h2 class="card__title">Detected Sign</h2>
+          <span class="card__badge" id="detectionBadge">Waiting</span>
+        </div>
+        <div class="card__body detection-display">
+          <div class="detected-letter" id="detectedLetter">
+            <span class="detected-letter__placeholder">—</span>
+          </div>
+
+          <div class="meters">
+            <div class="meter">
+              <div class="meter__label">
+                <span>Stability</span>
+                <span class="meter__value" id="stabilityValue">0%</span>
+              </div>
+              <div class="meter__track">
+                <div class="meter__fill meter__fill--stability" id="stabilityFill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sentence builder -->
+      <section class="card" aria-label="Sentence builder">
+        <div class="card__header">
+          <h2 class="card__title">Sentence Builder</h2>
+          <span class="card__badge" id="charCount">0 chars</span>
+        </div>
+        <div class="card__body sentence-area">
+          <div class="sentence-display sentence-display--empty" id="sentenceDisplay">
+            Show a sign to start typing...
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary" id="btnSpeak" type="button" title="Speak sentence (Enter)">
+              🔊 Speak
+            </button>
+            <button class="btn" id="btnSpace" type="button" title="Add space (Spacebar)">
+              ␣ Space
+            </button>
+            <button class="btn" id="btnBackspace" type="button" title="Delete last (Backspace)">
+              ⌫ Delete
+            </button>
+            <button class="btn btn--danger" id="btnClear" type="button" title="Clear all (C)">
+              ✕ Clear
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sign reference guide -->
+      <section class="card" aria-label="Sign reference guide">
+        <div class="card__header">
+          <h2 class="card__title">Sign Reference</h2>
+        </div>
+        <div class="reference-grid" id="referenceGrid">
+          <!-- Filled dynamically from labels.json -->
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- ─── Keyboard Hints Bar ──────────────────────────────────────── -->
+  <footer class="keyboard-bar" role="contentinfo">
+    <div class="keyboard-hint"><kbd class="kbd">Space</kbd> Add space</div>
+    <div class="keyboard-hint"><kbd class="kbd">⌫</kbd> Delete</div>
+    <div class="keyboard-hint"><kbd class="kbd">Enter</kbd> Speak</div>
+    <div class="keyboard-hint"><kbd class="kbd">C</kbd> Clear</div>
+    <div class="keyboard-hint"><kbd class="kbd">Q</kbd> Quit camera</div>
+  </footer>
+
+  <!-- ─── Scripts (CDN) ───────────────────────────────────────────── -->
+  <!-- MediaPipe Vision Tasks -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.mjs" type="module"></script>
+  <!-- ONNX Runtime Web -->
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.3/dist/ort.min.js"></script>
+  <!-- App -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
