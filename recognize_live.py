@@ -30,6 +30,26 @@ def speak(text):
 # ── Camera & MediaPipe setup ───────────────────────────────────────
 cap = cv2.VideoCapture(0)
 
+# Wait for camera to be ready (retries if another app held it)
+import time as _time
+_max_retries = 5
+for _attempt in range(_max_retries):
+    if cap.isOpened():
+        break
+    print(f"  ⏳ Waiting for camera... (attempt {_attempt + 1}/{_max_retries})")
+    _time.sleep(1)
+    cap.release()
+    cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    print("  ❌ ERROR: Could not open camera. Make sure no other app is using it.")
+    print("     Close any other camera apps and try again.")
+    input("  Press Enter to exit...")
+    exit(1)
+
+# Let the camera warm up
+_time.sleep(0.5)
+
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -56,6 +76,7 @@ print("  C      = clear all text")
 print("  Q      = quit")
 print("=" * 55)
 
+_frame_fail_count = 0
 while True:
     data_aux = []
     x_ = []
@@ -63,7 +84,13 @@ while True:
 
     ret, frame = cap.read()
     if not ret:
-        break
+        _frame_fail_count += 1
+        if _frame_fail_count > 30:
+            print("  ❌ Camera disconnected. Exiting.")
+            break
+        _time.sleep(0.1)
+        continue
+    _frame_fail_count = 0
 
     H, W, _ = frame.shape
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
